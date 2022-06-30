@@ -1,10 +1,13 @@
 ﻿#include "TicTacToe.h"
 #include <iostream>
 #include <algorithm>
+#include <iomanip>
 #include <unordered_map>
 
 void TicTacToe::PlayGame()
 {
+    // Instructions
+    
     // Request move first or second
     RequestMove();
 
@@ -21,13 +24,16 @@ void TicTacToe::PlayGame()
         // Game loop
         if (playerTurn_)
         {
-            
+            std::string input;
+            std::cout << "Enter your move (letter followed by number): ";
+            std::cin >> input;
         }
         else
         {
             
         }
 
+        PrintBoard();
         
         playing = false;
     }
@@ -41,17 +47,50 @@ void TicTacToe::PrintBoard()
      *  1 [ ] [ ] [ ]      1 [X] [ ] [ ]
      *     a   b   c          a   b   c
      */
+
+    // Static table with program-wide duration
+    // No need to recreate table each time method is called
+    // For converting from string to array position
+    static std::map<std::string, int> const table =
+    {
+        {"a3", 1},
+        {"b3", 2},
+        {"c3", 3},
+        
+        {"a2", 4},
+        {"b2", 5},
+        {"c2", 6},
+        
+        {"a1", 7},
+        {"b1", 8},
+        {"c1", 9}
+    };
+
+    // From a3, b3, c3, a2.... check if one of the players have it
+    // if so, replace the space with X or O
+
+    for (unsigned int i{0}; i < table.size(); i++)
+    {
+        // Print line numbers
+        if (i % 3 == 0)
+        {
+            std::cout
+            << std::setw(2) << std::right << (i / 3);
+        }
+
+        // TODO: FIGURE OUT HOW TO PRINT THE BOARD
+    }
     
     std::cout << "Printing Board...\n";
 }
 
-void TicTacToe::PlayPiece(const char c1, const int c2)
+void TicTacToe::PlayPiece(const std::string c)
 {
     // Call generic play piece method
-    PlayPiece(c1, c2, true);
+    PlayPiece(c, true);
 }
 
-void TicTacToe::PlayPiece(const char c1, const int c2, bool isPlayer)
+void TicTacToe::PlayPiece(const std::string c, bool isPlayer)
 {
     
 }
@@ -87,16 +126,6 @@ void TicTacToe::RequestOX()
 {
     std::string input;
     bool inputValid = false;
-
-    // REPLACED WITH BOOL
-    // Static table with program-wide duration
-    // No need to recreate table each time method is called
-    // For converting from string to enum
-    // static std::unordered_map<std::string, Player> const table =
-    // {
-    //     {"NOUGHTS", NOUGHTS},    
-    //     {"CROSSES", CROSSES}    
-    // };
     
     while (!inputValid)
     {
@@ -120,7 +149,7 @@ void TicTacToe::RequestOX()
     }
 }
 
-bool TicTacToe::CheckWin()
+bool TicTacToe::CheckWin(Players player)
 {
     /* Check if player or CPU has winning position
     * {
@@ -132,6 +161,9 @@ bool TicTacToe::CheckWin()
     * }
     */
 
+    auto selectedList = playState_[player];
+
+    // Check if any winning position is a subset of selected list
     
     return true;
 }
@@ -145,6 +177,10 @@ TicTacToe::TicTacToe()
      * map X -> {a1, c3)
      * ---> std::map<Player, std::set<std::string>>
      */
+
+    // Start tracking play state with both sides empty
+    playState_.emplace(PLAYER, std::set<std::string>{});
+    playState_.emplace(CPU, std::set<std::string>{});
 }
 
 TicTacToe::~TicTacToe()

@@ -2,13 +2,14 @@
 #include <map>
 #include <set>
 #include <string>
+#include <unordered_map>
 
 class TicTacToe
 {
 public: 
     void PlayGame();
     void PrintBoard();
-    enum Player {NOUGHTS, CROSSES};
+    enum Players {PLAYER, CPU};
 
     // Constructors/Destructors
     TicTacToe();
@@ -17,11 +18,11 @@ public:
 private:
     void RequestMove();
     void RequestOX();
-    bool CheckWin();
-    void PlayPiece(const char c1, const int c2);
-    void PlayPiece(const char c1, const int c2, bool isPlayer);
+    bool CheckWin(Players player);
+    void PlayPiece(const std::string c);
+    void PlayPiece(const std::string c, bool isPlayer);
 
-    std::map<Player, std::set<std::string>> playState_;
+    std::unordered_map<Players, std::set<std::string>> playState_;
     bool playerTurn_ = true;
     bool isCross_ = true;
 };
