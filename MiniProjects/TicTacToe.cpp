@@ -18,7 +18,8 @@ void TicTacToe::PlayGame()
     PrintBoard();
 
     bool playing = true;
-    
+
+    // Play game
     while (playing)
     {
         // Game loop
@@ -27,72 +28,35 @@ void TicTacToe::PlayGame()
             std::string input;
             std::cout << "Enter your move (letter followed by number): ";
             std::cin >> input;
+
+            // Check valid input and move was successful
+            if (CheckValid(input) && PlayPiece(input, USER))
+            {
+                // Check if winning condition
+                if(CheckWin(USER))
+                {
+                    std::cout << "You've won!\n";
+                    playing = false;
+                }
+                    
+                // Change turn
+                playerTurn_ = !playerTurn_;
+            }
+            else
+            {
+                std::cout << "Invalid input. Try again.\n";
+            }
         }
         else
         {
-            
+            std::cout << "Doing CPU turn\n";
+            playerTurn_ = !playerTurn_;
+            // playing = false;
         }
-
+        
         PrintBoard();
         
-        playing = false;
     }
-}
-
-void TicTacToe::PrintBoard()
-{
-    /*
-     *  3 [ ] [ ] [ ]      3 [O] [ ] [X]
-     *  2 [ ] [ ] [ ]  ->  2 [O] [ ] [ ]
-     *  1 [ ] [ ] [ ]      1 [X] [ ] [ ]
-     *     a   b   c          a   b   c
-     */
-
-    // Static table with program-wide duration
-    // No need to recreate table each time method is called
-    // For converting from string to array position
-    static std::map<std::string, int> const table =
-    {
-        {"a3", 1},
-        {"b3", 2},
-        {"c3", 3},
-        
-        {"a2", 4},
-        {"b2", 5},
-        {"c2", 6},
-        
-        {"a1", 7},
-        {"b1", 8},
-        {"c1", 9}
-    };
-
-    // From a3, b3, c3, a2.... check if one of the players have it
-    // if so, replace the space with X or O
-
-    for (unsigned int i{0}; i < table.size(); i++)
-    {
-        // Print line numbers
-        if (i % 3 == 0)
-        {
-            std::cout
-            << std::setw(2) << std::right << (i / 3);
-        }
-
-        // TODO: FIGURE OUT HOW TO PRINT THE BOARD
-    }
-    
-    std::cout << "Printing Board...\n";
-}
-
-void TicTacToe::PlayPiece(const std::string c)
-{
-    // Call generic play piece method
-    PlayPiece(c, true);
-}
-
-void TicTacToe::PlayPiece(const std::string c, bool isPlayer)
-{
-    
 }
 
 void TicTacToe::RequestMove()
@@ -149,23 +113,117 @@ void TicTacToe::RequestOX()
     }
 }
 
-bool TicTacToe::CheckWin(Players player)
+void TicTacToe::PrintBoard()
 {
-    /* Check if player or CPU has winning position
-    * {
-    *   {a1, a2, a3},
-    *   {b1, b2, b3},
-    *   {c1, c2, c3},
-    *   {a1, b2, c3},
-    *   ...
-    * }
-    */
+    std::cout << "Printing Board...\n";
+    
+    /*
+     *  3 [ ] [ ] [ ]      3 [O] [ ] [X]
+     *  2 [ ] [ ] [ ]  ->  2 [O] [ ] [ ]
+     *  1 [ ] [ ] [ ]      1 [X] [ ] [ ]
+     *     a   b   c          a   b   c
+     */
+
+    // From a3, b3, c3, a2.... check if one of the players have it
+    // if so, replace the space with X or O
+    for (unsigned int i{0}; i < table_.size(); i++)
+    {
+        // Print line numbers
+        if (i % 3 == 0)
+        {
+            std::cout
+            << '\n' << std::setw(2) << std::right << (i / 3) ;
+        }
+
+        // Maybe more optimised to use pointer here to avoid string copies?
+        const std::string* position{&table_.at(i + 1)};
+
+        // Check if CPU contains that string and continue if so
+        if (CheckTaken(*position, CPU))
+        {
+            std::cout << " [" << (isCross_ ? "O" : "X") << "]";
+            continue;
+        }
+
+        // Check if Player contains that string and continue if so
+        if (CheckTaken(*position, USER))
+        {
+            std::cout << " [" << (isCross_ ? "X" : "O") << "]";
+            continue;
+        }
+        
+        // If no one then print normal
+        std::cout << " [ ]";
+    }
+
+    std::cout << "\n    a   b   c \n";
+}
+
+bool TicTacToe::PlayPiece(const std::string& position, Players player)
+{
+    // Check that neither player has taken that piece
+    if (!CheckTaken(position, CPU) && !CheckTaken(position, USER))
+    {
+        // Add to player
+        playState_[player].emplace(position);
+        return true;
+    }
+    
+    return false;
+}
+
+// Check the player has taken that piece
+bool TicTacToe::CheckTaken(const std::string& position, const Players player)
+{
+    return playState_[player].find(position) != playState_[player].end();
+}
+
+// Check input is valid for table
+bool TicTacToe::CheckValid(const std::string& position)
+{
+    return std::any_of(table_.begin(), table_.end(), [&](const auto& value) -> bool
+    {
+       if (value.second == position)
+           return true;
+        return false;
+    });
+    
+}
+
+// Check if play has caused a win
+bool TicTacToe::CheckWin(const Players player)
+{
+    // Static table with program-wide duration
+    // No need to recreate table each time method is called
+    // Only needs scope limited to this method
+    static const std::set<std::set<std::string>> winningTable
+    {
+        // columns
+        {"a1", "a2", "a3"},
+        {"b1", "b2", "b3"},
+        {"c1", "c2", "c3"},
+        // rows
+        {"a1", "b1", "c1"},
+        {"a2", "b2", "c2"},
+        {"a3", "b3", "c3"},
+        // diagonals
+        {"a1", "b2", "c3"},
+        {"a3", "b2", "c1"},
+    };
 
     auto selectedList = playState_[player];
 
     // Check if any winning position is a subset of selected list
+    for (const auto& winCombo : winningTable)
+    {
+        if (std::includes(selectedList.begin(), selectedList.end(),
+            winCombo.begin(), winCombo.end()))
+        {
+            return true;
+        }
+    }
     
-    return true;
+    return false;
 }
 
 TicTacToe::TicTacToe()
@@ -179,7 +237,7 @@ TicTacToe::TicTacToe()
      */
 
     // Start tracking play state with both sides empty
-    playState_.emplace(PLAYER, std::set<std::string>{});
+    playState_.emplace(USER, std::set<std::string>{});
     playState_.emplace(CPU, std::set<std::string>{});
 }
 
