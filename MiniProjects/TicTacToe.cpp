@@ -2,60 +2,41 @@
 #include <iostream>
 #include <algorithm>
 #include <iomanip>
-#include <unordered_map>
 
 void TicTacToe::PlayGame()
 {
+    // Initialize random generator engine
+    std::random_device rd;
+    const std::mt19937 gen(rd());
+    const std::uniform_int_distribution<int> randInt(1, 9);
+
     // Instructions
     
     // Request move first or second
     RequestMove();
 
     // Request Noughts or crosses
-    RequestOX();
+    RequestOx();
     
     // Create board - 3x3 array
     PrintBoard();
 
     bool playing = true;
 
-    // Play game
+    // Play game loop
     while (playing)
     {
-        // Game loop
         if (playerTurn_)
         {
-            std::string input;
-            std::cout << "Enter your move (letter followed by number): ";
-            std::cin >> input;
-
-            // Check valid input and move was successful
-            if (CheckValid(input) && PlayPiece(input, USER))
-            {
-                // Check if winning condition
-                if(CheckWin(USER))
-                {
-                    std::cout << "You've won!\n";
-                    playing = false;
-                }
-                    
-                // Change turn
-                playerTurn_ = !playerTurn_;
-            }
-            else
-            {
-                std::cout << "Invalid input. Try again.\n";
-            }
+            DoPlayerTurn(playing);
         }
         else
         {
-            std::cout << "Doing CPU turn\n";
-            playerTurn_ = !playerTurn_;
-            // playing = false;
+            // Could make it play strategically instead of randomly?
+            DoCpuTurn(gen, randInt, playing);
         }
         
         PrintBoard();
-        
     }
 }
 
@@ -86,7 +67,7 @@ void TicTacToe::RequestMove()
     }
 }
 
-void TicTacToe::RequestOX()
+void TicTacToe::RequestOx()
 {
     std::string input;
     bool inputValid = false;
@@ -170,6 +151,60 @@ bool TicTacToe::PlayPiece(const std::string& position, Players player)
     }
     
     return false;
+}
+
+void TicTacToe::DoPlayerTurn(bool& playing)
+{
+    std::string input;
+    std::cout << "Enter your move (letter followed by number): ";
+    std::cin >> input;
+
+    // Check valid input and move was successful
+    if (CheckValid(input) && PlayPiece(input, USER))
+    {
+        // Check if winning condition
+        if(CheckWin(USER))
+        {
+            std::cout << "You've won!\n";
+            playing = false;
+        }
+                    
+        // Change turn
+        playerTurn_ = !playerTurn_;
+    }
+    else
+    {
+        std::cout << "Invalid input. Try again.\n";
+    }
+}
+
+void TicTacToe::DoCpuTurn(std::mt19937 gen, const std::uniform_int_distribution<int> randInt, bool& playing)
+{
+    std::cout << "Doing CPU turn...\n";
+
+    // Select random move until valid
+    bool valid = false;
+    while (!valid)
+    {
+        std::string input = table_.at(randInt(gen));
+
+        // Check valid input and move was successful
+        if (CheckValid(input) && PlayPiece(input, CPU))
+        {
+            // Check if winning condition
+            if(CheckWin(CPU))
+            {
+                std::cout << "You've lost!\n";
+                playing = false;
+            }
+                    
+            // Change turn
+            playerTurn_ = !playerTurn_;
+
+            // Set valid
+            valid = true;
+        }
+    }
 }
 
 // Check the player has taken that piece
