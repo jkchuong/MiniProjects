@@ -107,13 +107,13 @@ void TicTacToe::PrintBoard()
 
     // From a3, b3, c3, a2.... check if one of the players have it
     // if so, replace the space with X or O
-    for (unsigned int i{0}; i < table_.size(); i++)
+    for (int i{0}; i < static_cast<int>(table_.size()); i++)
     {
         // Print line numbers
         if (i % 3 == 0)
         {
             std::cout
-            << '\n' << std::setw(2) << std::right << (i / 3) ;
+            << '\n' << std::setw(2) << std::right << -(i / 3) + 3;
         }
 
         // Maybe more optimised to use pointer here to avoid string copies?
