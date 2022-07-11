@@ -1,16 +1,23 @@
 ﻿#include "TicTacToe.h"
 #include <iostream>
 #include <algorithm>
+#include <cassert>
 #include <iomanip>
 
 void TicTacToe::PlayGame()
 {
-    // Initialize random generator engine
+    // Place random generator as default instead of initialising here?
     std::random_device rd;
     const std::mt19937 gen(rd());
     const std::uniform_int_distribution<int> randInt(1, 9);
 
     // Instructions
+    std::cout << "Welcome to Tic Tac Toe!\n";
+    std::cout << "To play, let us know whether you want to go first or second\n";
+    std::cout << "Then, let us know whether you want to be noughts or crosses\n";
+    std::cout << "Finally, to enter a move, simply use the axis provided!\n";
+    std::cout << "For example, a3 would be a valid move, but a4 or d3 wouldn't, so be careful!\n";
+    std::cout << "Now starting the game...\n\n";
     
     // Request move first or second
     RequestMove();
@@ -187,7 +194,7 @@ void TicTacToe::DoCpuTurn(std::mt19937 gen, const std::uniform_int_distribution<
     while (!valid)
     {
         std::string input = table_.at(randInt(gen));
-
+ 
         // Check valid input and move was successful
         if (CheckValid(input) && PlayPiece(input, CPU))
         {
@@ -263,7 +270,7 @@ bool TicTacToe::CheckWin(const Players player)
 
 TicTacToe::TicTacToe()
 {
-    std::cout << "Starting game... \n";
+    std::cout << "Creating game... \n\n";
     
     /*
      * map O -> {a2, a3}

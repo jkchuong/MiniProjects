@@ -5,11 +5,19 @@
 #include <string>
 #include <unordered_map>
 
+/**
+ * Class for creating and playing Tic Tac Toe
+ */
 class TicTacToe
 {
 public:
+    // Default special member functions
+    TicTacToe(const TicTacToe& other) = default;
+    TicTacToe(TicTacToe&& other) noexcept = default;
+    TicTacToe& operator=(const TicTacToe& other) = default;
+    TicTacToe& operator=(TicTacToe&& other) noexcept = default;
+    
     void PlayGame();
-    void PrintBoard();
     enum Players {USER, CPU};
 
     // Constructors/Destructors
@@ -19,19 +27,20 @@ public:
 private:
     void RequestMove();
     void RequestOx();
+    void PrintBoard();
+    void DoPlayerTurn(bool& playing);
+    void DoCpuTurn(std::mt19937 gen, std::uniform_int_distribution<int> randInt, bool& playing);
     bool PlayPiece(const std::string& position, Players player);
     bool CheckWin(Players player);
     bool CheckTaken(const std::string& position, Players player);
     bool CheckValid(const std::string& position);
-    void DoPlayerTurn(bool& playing);
-    void DoCpuTurn(std::mt19937 gen, std::uniform_int_distribution<int> randInt, bool& playing);
 
 
     std::unordered_map<Players, std::set<std::string>> playState_;
     bool playerTurn_ = true;
     bool isCross_ = true;
 
-
+    // probably didn't need a map, could just use set 
     std::map<unsigned int, std::string> table_
     {
         {1, "a3"},
