@@ -13,10 +13,12 @@ private:
     const int wordLengthCap_{30};
     const int maxGuesses_{6};
     std::string hiddenWord_;
-    int guessedInt_{0};
+    int incorrectGuesses_{0};
     std::set<char> guessedChars_;
     std::string GetRandomWord() const;
-    void PrintHangman();
+    void PrintHangman() const;
+    void PrintWord() const;
+    void PrintGuesses() const;
 };
 
 /*

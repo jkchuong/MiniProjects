@@ -15,8 +15,8 @@ void Hangman::PlayGame()
     std::cout << "Now starting game...\n\n";
 
     hiddenWord_ = GetRandomWord();
-
-    while (guessedInt_ < maxGuesses_)
+    
+    while (incorrectGuesses_ < maxGuesses_)
     {
         char guess{};
         std::cout << "Guess a letter: ";
@@ -29,8 +29,26 @@ void Hangman::PlayGame()
         }
 
         guess = static_cast<char>(toupper(guess));
+
+        if (guessedChars_.find(guess) != guessedChars_.end())
+        {
+            std::cout << "You've already guessed that letter, try again.\n";
+            continue;
+        }
         
+        guessedChars_.emplace(guess);
+
+        if (hiddenWord_.find(guess) == std::string::npos)
+        {
+            incorrectGuesses_++;
+        }
+
+        PrintGuesses();
+        PrintWord();
+        PrintHangman();
     }
+
+    // TODO: Add winning and losing conditions
     
 }
 
@@ -44,7 +62,7 @@ std::string Hangman::GetRandomWord() const
     std::ifstream wordFile{"Hangman/words.txt"};
     const int randomLine{randInt(gen)};
     std::string line{};
-    line.reserve(wordLengthCap_);
+    line.reserve(wordLengthCap_); // For performance
 
     for (int i{0}; i < randomLine; i++)
     {
@@ -56,21 +74,45 @@ std::string Hangman::GetRandomWord() const
     return line;
 }
 
-void Hangman::PrintHangman()
+void Hangman::PrintGuesses() const
+{
+    std::cout << "Guessed: ";
+
+    for (const char c : guessedChars_)
+    {
+        std::cout << c << " ";
+    }
+
+    std::cout << '\n';
+}
+
+void Hangman::PrintWord() const
+{
+    std::cout << "Word: ";
+    
+    for (const char c : hiddenWord_)
+    {
+        if (guessedChars_.find(c) == guessedChars_.end())
+        {
+            std::cout << "_";
+        }
+        else
+        {
+            std::cout << c;
+        }
+    }
+        
+    std::cout << '\n';
+}
+
+void Hangman::PrintHangman() const
 {
     std::cout << "\t+--------+\n";
 
     static const std::string blankLine = "\t|\n";
-    
-    static std::vector<std::string> hangedman
-    {
-        "\t|        0\n",
-        "\t|       /|\\n",
-        "\t|        |\n",
-        "\t|       / \\n"
-    };
 
-    switch (guessedInt_)
+    // Could use fallthrough somehow?
+    switch (incorrectGuesses_)
     {
         case 1:
         {
