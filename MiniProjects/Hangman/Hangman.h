@@ -7,6 +7,7 @@ class Hangman
 {
 public:
     void PlayGame();
+    void Reset();
 
 private:
     const int numberOfWords_{58109}; // Think of more performant way to get number of lines at runtime

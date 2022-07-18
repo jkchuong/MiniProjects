@@ -15,13 +15,15 @@ void Hangman::PlayGame()
     std::cout << "Now starting game...\n\n";
 
     hiddenWord_ = GetRandomWord();
+    bool wordComplete = false;
     
-    while (incorrectGuesses_ < maxGuesses_)
+    while (incorrectGuesses_ < maxGuesses_ && !wordComplete)
     {
         char guess{};
         std::cout << "Guess a letter: ";
         std::cin >> guess;
-        
+
+        // Don't allow user to input invalid characters
         if (!isalpha(guess))
         {
             std::cout << "Not in the alphabet, try again.\n";
@@ -30,6 +32,7 @@ void Hangman::PlayGame()
 
         guess = static_cast<char>(toupper(guess));
 
+        // Don't allow user to input letters they've already guessed
         if (guessedChars_.find(guess) != guessedChars_.end())
         {
             std::cout << "You've already guessed that letter, try again.\n";
@@ -38,18 +41,42 @@ void Hangman::PlayGame()
         
         guessedChars_.emplace(guess);
 
+        // Increment incorrect guesses if incorrect guess
         if (hiddenWord_.find(guess) == std::string::npos)
         {
             incorrectGuesses_++;
         }
+
+        // Check if win
+        wordComplete = std::all_of(hiddenWord_.begin(), hiddenWord_.end(),
+                                          [this](const char c)
+                                          {
+                                              return guessedChars_.find(c) != guessedChars_.end();
+                                          });
 
         PrintGuesses();
         PrintWord();
         PrintHangman();
     }
 
-    // TODO: Add winning and losing conditions
-    
+    // Exiting while loops means that the user has maxed out their allowed guesses and loses
+    if (wordComplete)
+    {
+        std::cout << "You win! ";
+    }
+    else
+    {
+        std::cout << "You lose! ";
+    }
+
+    std::cout << "The hidden word was: " << hiddenWord_ << '\n';
+}
+
+void Hangman::Reset()
+{
+    guessedChars_.clear();
+    hiddenWord_.clear();
+    incorrectGuesses_ = 0;
 }
 
 std::string Hangman::GetRandomWord() const
@@ -89,7 +116,7 @@ void Hangman::PrintGuesses() const
 void Hangman::PrintWord() const
 {
     std::cout << "Word: ";
-    
+
     for (const char c : hiddenWord_)
     {
         if (guessedChars_.find(c) == guessedChars_.end())

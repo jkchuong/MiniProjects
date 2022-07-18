@@ -47,6 +47,13 @@ void TicTacToe::PlayGame()
     }
 }
 
+void TicTacToe::Reset()
+{
+    playState_.clear();
+    playState_.emplace(USER, std::set<std::string>{});
+    playState_.emplace(CPU, std::set<std::string>{});
+}
+
 void TicTacToe::RequestMove()
 {
     std::string input;
@@ -147,7 +154,7 @@ void TicTacToe::PrintBoard()
     std::cout << "\n    a   b   c \n";
 }
 
-bool TicTacToe::PlayPiece(const std::string& position, Players player)
+bool TicTacToe::PlayPiece(const std::string& position, const Players player)
 {
     // Check that neither player has taken that piece
     if (!CheckTaken(position, CPU) && !CheckTaken(position, USER))

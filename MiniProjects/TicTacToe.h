@@ -18,6 +18,7 @@ public:
     TicTacToe& operator=(TicTacToe&& other) noexcept = default;
     
     void PlayGame();
+    void Reset();
     enum Players {USER, CPU};
 
     // Constructors/Destructors
